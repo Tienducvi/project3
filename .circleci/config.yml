@@ -19,6 +19,8 @@ jobs:
             sudo cp -r node-v18.0.0-linux-x64/{bin,include,lib,share} /usr/
             node --version => v18.0.0
             sudo apt install nodejs
+            sudo apt update
+            sudo apt install libc-ares2 libnode72 nodejs-doc nodejs
 
             echo "--------- The images is Building ------------"
 
@@ -38,7 +40,7 @@ jobs:
 
             echo " ------- login in to hub--------"
 
-            docker login -u vitieu98 -p $DOCKERPASS
+            docker login -u newthingade -p $DOCKERPASS
 
             echo "-------------- Pushing images to dockerhub-------"
 
