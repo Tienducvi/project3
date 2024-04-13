@@ -3,50 +3,44 @@ version: 2.1
 jobs:
   lint-app:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16
     steps:
       - checkout
   build-docker:
     machine: true
     steps:
-      - checkout
-      - run:
+     - checkout
+     - run:
           name: Build docker container for each microservices
           command: |
-            echo "--------- Installing dependencies-----------"
-            sudo curl -LO https://nodejs.org/dist/v16.16.0/node-v16.16.0-linux-x64.tar.xz
-            sudo tar -xvf node-v16.16.0-linux-x64.tar.xz
-            sudo cp -r node-v16.16.0-linux-x64/{bin,include,lib,share} /usr/
-            node --version => v16.16.0
-            sudo apt install nodejs
-            sudo apt --fix-missing install
-
-            echo "--------- The images is Building ------------"
-
+            curl -fsSl https://deb.nodesource.com/setup_16.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            node -v
+            npm -v
             docker build -t udagram-api-feed ./udagram-api-feed
-            docker tag udagram-api-feed vitieu98/udagram-api-feed:v3
+            docker tag udagram-api-feed $DOCKER_USERNAME/udagram-api-feed:v1
 
             docker build -t udagram-api-user ./udagram-api-user
-            docker tag udagram-api-user vitieu98/udagram-api-user:v3
-            
+            docker tag udagram-api-user $DOCKER_USERNAME/udagram-api-user:v1
+
             docker build -t udagram-frontend ./udagram-frontend
-            docker tag udagram-frontend vitieu98/udagram-frontend:v3
+            docker tag udagram-frontend $DOCKER_USERNAME/udagram-frontend:v1
 
             docker build -t udagram-reverseproxy ./udagram-reverseproxy
-            docker tag udagram-reverseproxy vitieu98/udagram-reverseproxy:v3
+            docker tag udagram-reverseproxy $DOCKER_USERNAME/udagram-reverseproxy:v1
 
-            echo "-------- All images succesfully built----------"
+            echo "-----------All images successfully built-----------"
 
-            echo " ------- login in to hub--------"
+            echo "-----------login in to hub--------------"
 
-            docker login -u vitieu98 -p $DOCKERPASS
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
-            echo "-------------- Pushing images to dockerhub-------"
+            echo "----------Pushing images to dockerhub----------"
 
-            docker push newthingade/udagram-api-feed:v3
-            docker push newthingade/udagram-api-user:v3
-            docker push newthingade/udagram-frontend:v3
-            docker push newthingade/udagram-reverseproxy:v3
+            docker push $DOCKER_USERNAME/udagram-api-feed:v1
+            docker push $DOCKER_USERNAME/udagram-api-user:v1
+            docker push $DOCKER_USERNAME/udagram-frontend:v1
+            docker push $DOCKER_USERNAME/udagram-reverseproxy:v1
 
 workflows:
   default:
@@ -54,3 +48,4 @@ workflows:
       - lint-app
       - build-docker:
           requires: [lint-app]
+    
